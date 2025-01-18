@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/khatibomar/virtual-consensus/virtuallog"
 )
@@ -40,6 +41,7 @@ menu:
 			if err != nil {
 				fmt.Println(err)
 			}
+			value = strings.TrimSuffix(value, "\n")
 			pos, err := virtualLog.Append(value)
 			if err != nil {
 				fmt.Println(err)
