@@ -51,7 +51,7 @@ func NewMetaStore[T any]() *MetaStore[T] {
 	m.loglets = make(map[string]loglet.Loglet[T])
 	loglet := loglet.NewMemoryLoglet[T]()
 	m.loglets[k] = loglet
-	chain := Chain{Range: Range{Start: 0, End: 0}, LogletID: k, Next: nil}
+	chain := Chain{Range: Range{Start: 0, End: Infinity}, LogletID: k, Next: nil}
 	m.chain = chain
 
 	return m

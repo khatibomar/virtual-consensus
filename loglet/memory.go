@@ -27,12 +27,12 @@ func (m *MemoryLoglet[T]) CheckTail() int64 {
 }
 
 func (m *MemoryLoglet[T]) ReadNext(start, end int64) ([]T, error) {
-	if start > end || start < 0 || start >= int64(len(m.entries)) || end < 0 {
+	if start > end || start < 0 || start >= m.CheckTail() || end < 0 {
 		return nil, ErrOutOfBounds
 	}
 
-	if end >= int64(len(m.entries)) {
-		end = int64(len(m.entries)) - 1
+	if end >= m.CheckTail() {
+		end = m.CheckTail()
 	}
 
 	return m.entries[start : end+1], nil
