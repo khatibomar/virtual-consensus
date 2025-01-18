@@ -1,8 +1,12 @@
 package virtuallog
 
 import (
+	"fmt"
+
 	"github.com/khatibomar/virtual-consensus/loglet"
 )
+
+var ErrOutOfBounds = fmt.Errorf("virtuallog: out of bounds")
 
 type VirtualLoger[T any] interface {
 	loglet.Loglet[T]
@@ -46,7 +50,7 @@ func (v *VirtualLog[T]) Reconfigure() error {
 
 func (v *VirtualLog[T]) ReadNext(start, end int64) ([]T, error) {
 	if start > end || start < 0 || start >= int64(v.CheckTail()) || end < 0 {
-		return nil, loglet.ErrOutOfBounds
+		return nil, ErrOutOfBounds
 	}
 
 	if end > int64(v.CheckTail()) {
@@ -69,7 +73,11 @@ func (v *VirtualLog[T]) ReadNext(start, end int64) ([]T, error) {
 			start = start - firstChain.Range.Start
 		}
 		log := v.m.loglets[firstChain.LogletID]
-		entries, err := log.ReadNext(start, log.CheckTail())
+		readUntil := log.CheckTail()
+		if firstChain == lastChain {
+			readUntil = end - firstChain.Range.Start
+		}
+		entries, err := log.ReadNext(start, readUntil)
 		if err != nil {
 			return nil, err
 		}

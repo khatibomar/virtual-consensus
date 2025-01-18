@@ -46,17 +46,17 @@ func TestVirtualLog(t *testing.T) {
 	t.Run("out of bounds read", func(t *testing.T) {
 		vlog := NewVirtualLog[string]()
 		_, err := vlog.ReadNext(-1, 0)
-		if err != loglet.ErrOutOfBounds {
+		if err != ErrOutOfBounds {
 			t.Errorf("Expected ErrOutOfBounds, got %v", err)
 		}
 
 		_, err = vlog.ReadNext(0, -1)
-		if err != loglet.ErrOutOfBounds {
+		if err != ErrOutOfBounds {
 			t.Errorf("Expected ErrOutOfBounds, got %v", err)
 		}
 
 		_, err = vlog.ReadNext(1, 0)
-		if err != loglet.ErrOutOfBounds {
+		if err != ErrOutOfBounds {
 			t.Errorf("Expected ErrOutOfBounds, got %v", err)
 		}
 	})
@@ -92,6 +92,28 @@ func TestVirtualLog(t *testing.T) {
 			t.Errorf("Expected 4 entries, got %d", len(entries))
 		}
 		if entries[0] != "first" || entries[1] != "second" || entries[2] != "third" || entries[3] != "fourth" {
+			t.Errorf("Unexpected entries: %v", entries)
+		}
+
+		entries, err = vlog.ReadNext(1, 3)
+		if err != nil {
+			t.Errorf("ReadNext failed: %v", err)
+		}
+		if len(entries) != 3 {
+			t.Errorf("Expected 3 entries, got %d", len(entries))
+		}
+		if entries[0] != "second" || entries[1] != "third" || entries[2] != "fourth" {
+			t.Errorf("Unexpected entries: %v", entries)
+		}
+
+		entries, err = vlog.ReadNext(0, 2)
+		if err != nil {
+			t.Errorf("ReadNext failed: %v", err)
+		}
+		if len(entries) != 3 {
+			t.Errorf("Expected 3 entries, got %d", len(entries))
+		}
+		if entries[0] != "first" || entries[1] != "second" || entries[2] != "third" {
 			t.Errorf("Unexpected entries: %v", entries)
 		}
 	})

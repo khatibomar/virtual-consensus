@@ -44,7 +44,7 @@ func (m *MemoryLoglet[T]) CheckTail() int64 {
 }
 
 func (m *MemoryLoglet[T]) ReadNext(start, end int64) ([]T, error) {
-	if start > end || start < 0 || start >= m.CheckTail() || end < 0 {
+	if start > end || start < 0 || start > m.CheckTail() || end < 0 {
 		return nil, ErrOutOfBounds
 	}
 
