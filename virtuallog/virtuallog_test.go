@@ -61,6 +61,41 @@ func TestVirtualLog(t *testing.T) {
 		}
 	})
 
+	t.Run("read from many loglets", func(t *testing.T) {
+		vlog := NewVirtualLog[string]()
+		_, _ = vlog.Append("first")
+		_, _ = vlog.Append("second")
+		err := vlog.Reconfigure()
+		if err != nil {
+			t.Errorf("Reconfigure failed: %v", err)
+		}
+		pos, err := vlog.Append("third")
+		if err != nil {
+			t.Errorf("Append failed: %v", err)
+		}
+		if pos != 2 {
+			t.Errorf("Expected position 2, got %d", pos)
+		}
+		pos, err = vlog.Append("fourth")
+		if err != nil {
+			t.Errorf("Append failed: %v", err)
+		}
+		if pos != 3 {
+			t.Errorf("Expected position 3, got %d", pos)
+		}
+
+		entries, err := vlog.ReadNext(0, 4)
+		if err != nil {
+			t.Errorf("ReadNext failed: %v", err)
+		}
+		if len(entries) != 4 {
+			t.Errorf("Expected 4 entries, got %d", len(entries))
+		}
+		if entries[0] != "first" || entries[1] != "second" || entries[2] != "third" || entries[3] != "fourth" {
+			t.Errorf("Unexpected entries: %v", entries)
+		}
+	})
+
 	t.Run("seal", func(t *testing.T) {
 		vlog := NewVirtualLog[string]()
 		p, err := vlog.Append("test")

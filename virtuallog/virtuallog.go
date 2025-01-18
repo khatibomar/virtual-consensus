@@ -54,13 +54,16 @@ func (v *VirtualLog[T]) ReadNext(start, end int64) ([]T, error) {
 		firstChain = firstChain.Next
 	}
 	lastChain := firstChain
-	for end > firstChain.Range.End {
+	for end > lastChain.Range.End {
 		lastChain = lastChain.Next
 	}
 
 	for {
+		if start > 0 {
+			start = start - firstChain.Range.Start
+		}
 		log := v.m.loglets[firstChain.LogletID]
-		entries, err := log.ReadNext(start-firstChain.Range.Start, log.CheckTail())
+		entries, err := log.ReadNext(start, log.CheckTail())
 		if err != nil {
 			return nil, err
 		}
