@@ -10,4 +10,5 @@ type Loglet[T any] interface {
 	CheckTail() int64
 	ReadNext(start, end int64) ([]T, error)
 	Seal()
+	String() string
 }

@@ -2,6 +2,7 @@ package virtuallog
 
 import (
 	"fmt"
+	"strings"
 	"sync/atomic"
 
 	"github.com/khatibomar/virtual-consensus/loglet"
@@ -22,6 +23,28 @@ type Chain struct {
 	Next     *Chain
 }
 
+func (c *Chain) String() string {
+	sb := strings.Builder{}
+	sb.WriteString("[------- ")
+	sb.WriteString(c.LogletID)
+	sb.WriteString(" -------]\n")
+	sb.WriteString("Range: ")
+	sb.WriteString("[")
+	start := c.Range.Start
+	sb.WriteString(fmt.Sprintf("%v", start))
+	sb.WriteString(", ")
+	end := c.Range.End
+	if end == Infinity {
+		sb.WriteString("∞")
+		sb.WriteString(")")
+	} else {
+		sb.WriteString(fmt.Sprintf("%v", end))
+		sb.WriteString("]")
+	}
+	sb.WriteString("\n")
+	return sb.String()
+}
+
 type MetaStore[T any] struct {
 	loglets map[string]loglet.Loglet[T]
 	chain   Chain
@@ -29,6 +52,19 @@ type MetaStore[T any] struct {
 	version       *atomic.Int32
 	keyGenerator  func() string
 	reconfiguring *atomic.Bool
+}
+
+func (m *MetaStore[T]) String() string {
+	chain := &m.chain
+	sb := strings.Builder{}
+	for chain != nil {
+		sb.WriteString(chain.String())
+		loglet := m.loglets[chain.LogletID]
+		sb.WriteString(loglet.String())
+		sb.WriteString("\n")
+		chain = chain.Next
+	}
+	return sb.String()
 }
 
 func (m *MetaStore[T]) latestInChain() *Chain {

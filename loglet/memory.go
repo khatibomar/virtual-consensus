@@ -1,10 +1,27 @@
 package loglet
 
-import "sync/atomic"
+import (
+	"fmt"
+	"strings"
+	"sync/atomic"
+)
 
 type MemoryLoglet[T any] struct {
 	entries []T
 	sealed  atomic.Bool
+}
+
+func (m *MemoryLoglet[T]) String() string {
+	if len(m.entries) == 0 {
+		return "No entries\n"
+	}
+	sb := strings.Builder{}
+	sb.WriteString("Entries: \n")
+	for _, entry := range m.entries {
+		sb.WriteString("\t")
+		sb.WriteString(fmt.Sprintf("%v\n", entry))
+	}
+	return sb.String()
 }
 
 func NewMemoryLoglet[T any]() *MemoryLoglet[T] {

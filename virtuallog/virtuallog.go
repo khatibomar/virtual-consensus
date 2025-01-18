@@ -1,6 +1,8 @@
 package virtuallog
 
-import "github.com/khatibomar/virtual-consensus/loglet"
+import (
+	"github.com/khatibomar/virtual-consensus/loglet"
+)
 
 type VirtualLoger[T any] interface {
 	loglet.Loglet[T]
@@ -14,6 +16,10 @@ type VirtualLog[T any] struct {
 func NewVirtualLog[T any]() *VirtualLog[T] {
 	m := NewMetaStore[T]()
 	return &VirtualLog[T]{m: m}
+}
+
+func (v *VirtualLog[T]) String() string {
+	return v.m.String()
 }
 
 func (v *VirtualLog[T]) Append(value T) (int64, error) {
