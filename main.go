@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
@@ -33,9 +34,11 @@ menu:
 		switch option {
 		case 1:
 			fmt.Println("Enter the value to append:")
+			reader := bufio.NewReader(os.Stdin)
 			var value string
-			if _, err := fmt.Scanln(&value); err != nil {
-				break menu
+			value, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println(err)
 			}
 			pos, err := virtualLog.Append(value)
 			if err != nil {
